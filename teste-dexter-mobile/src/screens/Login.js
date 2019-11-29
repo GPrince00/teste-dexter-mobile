@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, View, Text, StyleSheet, Image, TextInput, TouchableOpacity } from 'react-native';
+import { KeyboardAvoidingView, View, Text, StyleSheet, Image, TextInput, TouchableOpacity, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+
+import api from '../services/api';
+import aplication from '../services/aplication';
 
 import logo from '../assets/logo.png';
 
@@ -8,10 +11,22 @@ export default function Login({ navigation }) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    function handleLogin() {
+    async function handleLogin() {
+        const token = await aplication.login( username, password, api );
+        if(token === "1"){
+            alert("Usuário ou senha não podem estar vazios")
+        } else {
+            if (token === "2"){
+                alert("Usuário ou senha invalidos!");
+            } else {            
+                localStorage.setItem('sessionToken', token);
+                navigation.navigate('Main');
+            }
+        }        
+    }
 
+    function handleRegister() {
 
-        navigation.navigate('Main');
     }
 
     return (
@@ -19,14 +34,15 @@ export default function Login({ navigation }) {
             behavior="padding"
             style={styles.container}
         >
+            <StatusBar backgroundColor="black" barStyle="dark-content"/>
             <View style={styles.form}>
                 <Image source={logo} style={styles.img}/>
                 <Text style={styles.userInfoText}>Username</Text>
                 <TextInput 
                     autoCapitalize="none"
                     autoCorrect={false}
+                    placeholder="Your username"
                     style={styles.input}
-                    placeholder="seunome@email.com"
                     placeholderTextColor="#9B9B9B"   
                     value={username}
                     onChangeText={setUsername}                 
@@ -40,15 +56,22 @@ export default function Login({ navigation }) {
                     value={password}
                     onChangeText={setPassword}                  
                 />
+                <Text style={styles.userInfoText}>Trouble accessing your account?</Text>
                 <TouchableOpacity onPress={handleLogin} style={styles.buttonLogin}>
                     <LinearGradient
+                        alignSelf= 'stretch'
                         colors={['#AE23A9', '#DC4E1B']}
                         start={[0, 0]}
                         end={[1.02, 1.01]}
-                        style={{ padding: 15, alignItems: 'center', borderRadius: 5 }}>                    
+                        style={{ padding: 15, alignItems: 'center'}}>                    
                         <Text style={styles.buttonLoginText}>Login</Text>
                     </LinearGradient>
                 </TouchableOpacity>
+                <Text style={styles.or}>or</Text>
+                <TouchableOpacity onPress={handleRegister} style={styles.buttonRegister}>
+                    <Text style={styles.buttonRegisterText}>Register</Text>
+                </TouchableOpacity>
+                    <Text style={styles.termsOfUse}>Terms of use - Privacy policy</Text>
             </View>
         </KeyboardAvoidingView>
     );
@@ -63,7 +86,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFFFFF',
         justifyContent: 'center',
-        alignItems: 'center',
         padding: 30,
         margin: 30, 
         shadowOffset: {width: 0, height: 2},
@@ -82,7 +104,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         textAlign: 'left',
-        marginTop: 30,
+        marginTop: 25,
     },
     
     input: {    
@@ -96,7 +118,7 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         fontSize: 16,
         fontWeight: 'normal',          
-        lineHeight: 30
+        lineHeight: 30,
     },
     
     buttonLogin: {
@@ -104,12 +126,44 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         marginTop: 10,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginTop: 30,
+        marginBottom: 35
     },
 
     buttonLoginText: {
         color: '#FFFFFF',
         fontWeight: 'bold',
         fontSize: 16
+    },
+
+    or: {
+        textAlign: 'center',
+        color: '#4A4A4A',
+        fontSize: 16,
+        fontWeight: 'normal',
+    },
+
+    buttonRegister: {
+        height: 46,
+        alignSelf: 'stretch',
+        marginTop: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 30,
+        marginBottom: 35,
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderColor: '#9B9B9B'
+    },
+
+    buttonRegisterText: {
+        color: '#4A4A4A',
+    },
+
+    termsOfUse: {
+        color: '#4A4A4A',
+        fontSize: 14,
+        textAlign: 'center'
     },
 });
